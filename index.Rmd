@@ -1,0 +1,328 @@
+---
+title: 'Interactive Charts: htmlwidgets'
+author: "Vivek H. Patil"
+date: "November 6, 2015"
+output:
+  ioslides_presentation:
+    smaller: yes
+    theme: spacelab
+    widescreen: yes
+  pandoc_args: [
+      "+RTS", "-K64m",
+      "-RTS"
+    ]
+---
+
+<style>
+.title-slide hgroup h1 {color: red;}
+h2 {color: red;}
+slides > slide:not(.nobackground):after {
+  content: '';
+}
+</style>
+
+```{r global_options, include=FALSE}
+library(knitr)
+library(printr)
+opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+
+## This presentation
+
+* Presentation: [http://patilv.com/INRUG-InteractiveCharts](http://patilv.com/INRUG-InteractiveCharts)
+* Single page version of this presentation: [http://patilv.com/INRUG-InteractiveCharts/allinone.html](http://patilv.com/INRUG-InteractiveCharts/allinone.html)
+* Created using R markdown and R-Studio
+* GitHub repository for source : [https://github.com/patilv/INRUG-InteractiveCharts](https://github.com/patilv/INRUG-InteractiveCharts)
+
+
+## htmlwidgets, rCharts
+
+* `htmlwidgets`: Ramnath Vaidyanathan, Kenton Russell, and RStudio
+* `rCharts` (a transition to 2.0 using `htmlwidgets` is underway): Ramnath Vaidyanathan
+
+* Provide the ability, from within R, to create, customize and publish interactive JavaScript (JS) visualizations
+* JS is a computer programming language that can create interactivity using web browsers
+* There are many pre-written JS libraries that make the process of creating visualizations easier. 
+
+```{r eval=FALSE}
+
+install.packages("htmlwidgets")
+```
+
+## Challenge in learning
+
+* Different JS libraries developed independently - consistency in calls can at times be a challenge
+* Customization for specific needs may require writing JS code
+
+### Learning approach
+
+* Follow examples, questions, and issues presented in different venues
+* Stick to few JS libraries which provide many choices of charts and become very familiar with them. Don't forget that few have restrictions for commercial use.
+
+
+## Few Resources
+
+* `htmlwidgets`
+    * [htmlwidgets' site](http://www.htmlwidgets.org/index.html)
+    * [Timelyportfolio's challenge - A widget a week](http://www.buildingwidgets.com/)
+    * [Ryan Hafen's gallery of htmlwidgets developed by different people](http://hafen.github.io/htmlwidgetsgallery/)
+    * [Search GitHub](http://www.github.com) for `htmlwidgets`
+* `rCharts` (A reboot to an `htmlwidgets` version is on the way)
+    * [rCharts' website](http://rcharts.io/) and its [gallery of submissions from different people](http://rcharts.io/gallery/).
+    * [rCharts on GitHub and the issues posted there](https://github.com/ramnathv/rCharts) and on 
+
+## A sampling of the several htmlwidget packages 
+|   |   |
+|---|---|
+| Interactive tables | [DT](https://rstudio.github.io/DT/), [formattable](http://renkun.me/formattable/),[datacomb](https://github.com/cmpolis/datacomb), [rpivotTable](https://github.com/smartinsightsfromdata/rpivotTable),  [rhandsontable](http://jrowen.github.io/rhandsontable/), [D3TableFilter](https://github.com/ThomasSiegmund/D3TableFilter),  [sortableR](https://github.com/timelyportfolio/sortableR) |
+| Heatmaps  | [d3heatmap](https://github.com/rstudio/d3heatmap)|
+|Dimple|[rcdimple](https://github.com/timelyportfolio/rcdimple)|
+| Tau Charts|[taucharts](https://github.com/hrbrmstr/taucharts)|
+|Metrics Graphics|[metricsgraphics](http://hrbrmstr.github.io/metricsgraphics/)|
+| Bokeh | [rbokeh](http://hafen.github.io/rbokeh/)|
+
+## Few more sample packages 
+|   |   |
+|---|---|
+|streamgraph|[streamgraph](http://hrbrmstr.github.io/streamgraph/)|
+|Scatterplot matrices|[pairsD3](https://github.com/garthtarr/pairsD3), [scatterMatrixD3](https://github.com/jcizel/scatterMatrixD3)|
+|Pan and Zoom graphs|[svgPanZoom](https://github.com/timelyportfolio/svgPanZoom)|
+|Parallel Coordinate Charts|[parcoords](https://github.com/timelyportfolio/parcoords)|
+|Sequences Sunburst|[sunburstR](http://www.buildingwidgets.com/blog/2015/7/2/week-26-sunburstr)|
+
+## Example 1: Interactive table
+
+```{r}
+library(htmlwidgets)
+suppressPackageStartupMessages(library(dplyr))
+library(DT)# if (!require("DT")) install.packages('DT')
+dt=datatable(iris, options=list(pageLength = 5))
+saveWidget(dt,file = "dt.html",selfcontained = TRUE)
+```
+<iframe src="dt.html" width="800" height="600"></iframe>
+
+## Example 2: Heatmap
+
+```{r}
+head(mtcars)
+```
+
+## Example 2 continued: Heatmap
+```{r}
+library(d3heatmap)#if (!require("d3heatmap")) devtools::install_github("rstudio/d3heatmap")
+myheatmap=d3heatmap(mtcars,scale="column")
+saveWidget(myheatmap,file = "myheatmap.html",selfcontained = TRUE)
+```
+
+
+## Example 2 continued: Heatmap
+
+<iframe src="myheatmap.html" width="800" height="600"></iframe>
+
+## Example 3: `rcdimple`: Many graph types available
+[See examples of different types here.](http://patilv.com/rcdimpleexamples/)
+```{r}
+suppressPackageStartupMessages(library(rcdimple)) # demo(dimple) for tons of examples#if (!require("rcdimple")) devtools::install_github("timelyportfolio/rcdimple")
+myirisplot=iris%>% dimple(x = "Sepal.Length",
+  y = "Sepal.Width",
+  groups = "Species",
+  type = "bubble",width=600,height=380)%>% yAxis( overrideMin = 2)%>%
+  add_legend()
+saveWidget(myirisplot,file = "myirisplot.html",selfcontained = TRUE)
+```
+
+## Example 3 continued
+<iframe src="myirisplot.html" width="800" height="600"></iframe>
+
+## Example 4 grouped bar
+
+```{r}
+gearam=mtcars%>%group_by(gear,am)%>%summarise(count=length(gear))
+gearam$am<-ifelse(gearam$am==0,yes= "Auto",no= "Manual")
+gearam
+```
+
+## Example 4 grouped bar: `rcdimple`: Many graph types available
+```{r}
+mydimplebarplot=gearam%>%dimple(
+    x = c("gear","am"), y = "count",
+    groups = "am", type = "bar",width=600,height=390)%>%
+   add_legend()
+saveWidget(mydimplebarplot,file = "mydimplebarplot.html",selfcontained = TRUE)
+```
+
+## Example 4 continued
+<iframe src="mydimplebarplot.html" width="800" height="600"></iframe>
+
+
+##  Example 5: `taucharts`: Many graph types
+```{r}
+library(taucharts)#if (!require("taucharts")) devtools::install_github("hrbrmstr/taucharts")
+tauirisplot=iris %>% tauchart(height=500,width=800)%>% 
+  tau_point(x="Sepal.Length",y="Sepal.Width",color="Species")%>%
+  tau_tooltip(c("Sepal.Length", "Sepal.Width", "Species"))%>% 
+  tau_guide_y(auto_scale=FALSE)%>% 
+  tau_guide_x(auto_scale=FALSE)%>%tau_legend()
+saveWidget(tauirisplot,file = "tauirisplot.html",selfcontained = TRUE)
+```
+
+## Example 5 continued
+<iframe src="tauirisplot.html" width="800" height="700"></iframe>
+
+## Example 6: `taucharts`: Many graph types
+
+```{r}
+gearam$gear=as.factor(gearam$gear)
+gearbartauplot=tauchart(gearam)%>%tau_bar("gear","count","am")%>%
+  tau_tooltip(c("gear", "am", "count"))%>% tau_legend()
+saveWidget(gearbartauplot,file = "gearbartauplot.html",selfcontained = TRUE)
+```
+
+## Example 6 continued
+<iframe src="gearbartauplot.html" width="800" height="800"></iframe>
+
+## Example 7: `metricsgraphics`: Many graph types available
+
+Scatter and line plots (time-series data), grids/facets of graphs, and connected graphs
+```{r}
+#if (!require("metricsgraphics")) devtools::install_github("hrbrmstr/metricsgraphics")
+library(metricsgraphics)
+irismetricsplot=iris %>% mjs_plot(x=Sepal.Length,y=Sepal.Width) %>%
+  mjs_point(color_accessor=Species, color_type="category")%>%
+    mjs_labs(x="Sepal.Length", y="Sepal.Width")%>% 
+    mjs_axis_y(min_y=2)
+saveWidget(irismetricsplot,file = "irismetricsplot.html",selfcontained = TRUE)
+```
+## Example 7 continued
+<iframe src="irismetricsplot.html" width="950" height="800"></iframe>
+
+## Example 8: `rbokeh`: Many graph types available
+[http://hafen.github.io/rbokeh/](http://hafen.github.io/rbokeh/): Bar missing
+```{r}
+library(rbokeh)#if (!require("rbokeh")) devtools::install_github("bokeh/rbokeh")
+bokehirisplot=figure() %>%
+  ly_points(Sepal.Length, Sepal.Width, data = iris,
+    color = Species,
+    hover = list(Sepal.Length, Sepal.Width))
+saveWidget(bokehirisplot,file = "bokehirisplot.html",selfcontained = TRUE)
+```
+
+
+## Example 8 continued
+<iframe src="bokehirisplot.html" width="800" height="850"></iframe>
+
+
+
+## Example 9: Scatter plot matrix `pairsD3`
+
+```{r}
+#if (!require("pairsD3")) devtools::install_github("garthtarr/pairsD3")
+library(pairsD3)
+pairsd3plot=pairsD3(iris[,1:4],group=iris[,5])#%>%savePairs(file = 'iris.html')
+saveWidget(pairsd3plot,file = "pairsd3plot.html",selfcontained = TRUE)
+```
+
+## Example 9 continued
+<iframe src="pairsd3plot.html" width="800" height="600"></iframe>
+
+## Example 10: Scatter plot matrix `scatterMatrixD3`
+
+```{r}
+#if (!require("scatterMatrixD3")) devtools::install_github("jcizel/scatterMatrixD3")
+library(scatterMatrixD3)
+scattermatplot=scatterMatrix(
+   data = iris
+)
+saveWidget(scattermatplot,file = "scattermatplot.html",selfcontained = TRUE)
+```
+
+## Example 10 continued
+<iframe src="scattermatplot.html" width="800" height="800"></iframe>
+
+## Example 11 `streamgraph`
+```{r eval=FALSE}
+#if (!require("streamgraph")) devtools::install_github("hrbrmstr/streamgraph")
+library(streamgraph)
+library(babynames)
+head(babynames,3)
+maryplot=babynames %>%
+  filter(grepl("^Mar", name)) %>%
+  group_by(year, name) %>%
+  tally(wt=n) %>%
+  streamgraph("name", "n", "year")
+saveWidget(maryplot,file = "maryplot.html",selfcontained = TRUE)
+```
+
+## Example 11 continued
+<iframe src="maryplot.html" width="850" height="800"></iframe>
+
+## Example 12 `svgPanZoom`
+
+```{r}
+#if (!require("svgPanZoom")) devtools::install_github("timelyportfolio/svgPanZoom")
+library(svgPanZoom)
+library(ggplot2)
+mynewggplot=svgPanZoom(
+  ggplot(iris,aes(Sepal.Length,Sepal.Width,color=Species))+geom_point()
+)
+saveWidget(mynewggplot,file = "mynewggplot.html",selfcontained = TRUE)
+```
+
+
+
+## Example 12 continued
+
+<iframe src="mynewggplot.html" width="800" height="700"></iframe>
+
+## Example 13 `parcoords`
+
+```{r}
+#if (!require("parcoords")) devtools::install_github("timelyportfolio/parcoords")
+library(parcoords)
+mymtcarsplot=parcoords(mtcars,brushMode = "1D-axes-multi")
+saveWidget(mymtcarsplot,file = "mymtcarsplot.html",selfcontained = TRUE)
+```
+
+
+## Example 13 continued
+
+<iframe src="mymtcarsplot.html" width="800" height="700"></iframe>
+
+
+## Example 14 `sunburstr`
+```{r}
+#if (!require("sunburstR")) devtools::install_github("timelyportfolio/sunburstR")
+library(sunburstR)
+school=read.csv("school.csv")
+school
+```
+## Example 14 continued
+
+```{r}
+school$combo=paste(school$School,school$Department,school$Specialization,sep="-")
+school$combo=gsub("-$","",school$combo)
+head(school,1)
+myburst=sunburst(school[,c(5,4)])
+saveWidget(myburst,file = "myburst.html",selfcontained = TRUE)
+```
+
+
+
+## Example 14 continued
+
+<iframe src="myburst.html" width="800" height="800"></iframe>
+
+## More packages
+
+* `leaflet`: Mapping
+* Network data and Graph Diagrams
+    * mermaid and grViz: [DiagrammeR](http://rich-iannone.github.io/DiagrammeR/index.html) 
+    * Vivagraph: [vivagRaph](https://github.com/keeganhines/vivagRaph)
+    * d3Network: [networkD3](http://christophergandrud.github.io/networkD3/)
+    * Circle plot: [edgebundleR](https://github.com/garthtarr/edgebundleR)
+    * sigma: [sigma](https://github.com/jjallaire/sigma), 
+    * hive: [d3hiveR](http://www.buildingwidgets.com/blog/2015/7/11/week-27-d3hiver)
+* `ggvis`
+* `googleVis`
+* Server based interactivity - `shiny`
